@@ -83,6 +83,23 @@ class MY_GUI():
                 self.js=json.load(f)        #读取json为self.js
         else:
             self.js=[]                      #第一次先写js变量
+# 背景图片（暂时关闭）
+        self.photo = PhotoImage(file="a.gif")
+        self.label3 = Label(self.xiaoxue, image=self.photo, text='你就是个图片', compound=CENTER)
+        # self.label3.grid(row=4,column=3,rowspan=1,columnspan=1)
+# 背景动图（暂时关闭）
+        self.n = 9  # 按照图片帧数调整
+        self.pho = [PhotoImage(file='a.gif', format='gif -index %i' % (i)) for i in range(self.n)]
+        self.imagLabel = Label(self.xiaoxue, text='我想放屁', compound=CENTER)
+        # self.Update_Imag(0)
+
+#动图函数
+    def Update_Imag(self, idx):
+        po = self.pho[idx]
+        idx += 1
+        self.imagLabel.configure(image=po)
+        self.imagLabel.grid(row=4, column=3, columnspan=1,rowspan=1)
+        self.xiaoxue.after(50, self.Update_Imag, idx % self.n)
 
 #BTN1
     def EXIT(self):
