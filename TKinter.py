@@ -6,13 +6,13 @@
 #           width=20 宽      height=2 高
 #place：允许程序员指定组件的大小和位置 difang
 from tkinter import *
-import easygui,time,exec_ssh,json,os,exec_mysql
+import easygui,time,MYSQL,json,os,EXE_SSH
 class MY_GUI():
 
     def __init__(self,xiaoxue,IP):
         self.xiaoxue=xiaoxue
         self.IP=IP.strip()
-        if  self.IP == "192.168.116.200":
+        if   self.IP == "192.168.116.200":
             self.TITLE = "本地服务器  192.168.116.200"
     def XIAOXUE(self):
         self.xiaoxue.title(self.TITLE)
@@ -75,34 +75,15 @@ class MY_GUI():
         self.scroll1 = Scrollbar()       #滚动条
         self.listbox=Listbox(self.xiaoxue,width=97,selectmode="extended")
         self.scroll1.config(command=self.listbox.yview)
-        #self.scroll3.config(command=self.listbox.yview())#"moveto",1.0 ))
         self.listbox.config(yscrollcommand=self.scroll1.set)
         self.listbox.grid(row=4,column=0,columnspan=5) #nswe 上下左右
         self.scroll1.grid(row=4,column=6,columnspan=1,sticky="nsw")
-# 背景图片（暂时关闭）
-        self.photo = PhotoImage(file="a.gif")
-        self.label3 = Label(self.xiaoxue, image=self.photo, text='你就是个图片', compound=CENTER)
-        # self.label3.grid(row=4,column=3,rowspan=1,columnspan=1)
-# 背景动图（暂时关闭）
-        self.n = 9  # 按照图片帧数调整
-        self.pho = [PhotoImage(file='a.gif', format='gif -index %i' % (i)) for i in range(self.n)]
-        self.imagLabel = Label(self.xiaoxue, text='我想放屁', compound=CENTER)
-        # self.Update_Imag(0)
-#################################################################################################################
-#把输入的命令保存为json本地文件
         if os.path.isfile("a.js"):
             with open("a.js",'r') as f:
                 self.js=json.load(f)        #读取json为self.js
         else:
             self.js=[]                      #第一次先写js变量
-#################################################################################################################
-#动图函数
-    def Update_Imag(self, idx):
-        po = self.pho[idx]
-        idx += 1
-        self.imagLabel.configure(image=po)
-        self.imagLabel.grid(row=4, column=3, columnspan=1,rowspan=1)
-        self.xiaoxue.after(50, self.Update_Imag, idx % self.n)
+
 #BTN1
     def EXIT(self):
         self.XIAOXUE()
@@ -113,74 +94,81 @@ class MY_GUI():
 
 #BTN3
     def BIND(self):
-            easygui.msgbox(exec_ssh.active(self.IP),"连接状态")    #看ssh连接是否正常
+            easygui.msgbox(MYSQL.active(self.IP),"连接状态")    #看ssh连接是否正常
 #BTN4
     def BTN4(self):
-        #with open("a.js",'r') as f:     #查看json文件,输出历史执行命令
-        #    js=json.load(f)
-        #self.listbox.delete(0,END)
-        #for i in js:
-            #self.listbox.insert(END,i)
-        self.listbox.delete(0,END)        #从数据库输出到listbox历史执行命令
-        for i in exec_mysql.select()[-1::-1]:
+      if EXE_SSH.active() == "ok":
+          self.listbox.delete(0, END)  # 从数据库输出到listbox历史执行命令
+          for i in EXE_SSH.select()[-1::-1]:
+              self.listbox.insert(END, i)
+      else:
+        with open("a.js",'r') as f:     #查看json文件,输出历史执行命令
+            js=json.load(f)
+        self.listbox.delete(0,END)
+        for i in js:
             self.listbox.insert(END,i)
+
 #BTN5
     def BTN5(self):
-        if easygui.ccbox("你确定要执行文件上传任务吗?","提示"):
+        if easygui.ccbox("你确定要执行证书上传任务吗?","提示"):
             pass
         else:
             ccccccc
-        exec_ssh.Scp(self.IP)
-        exec_ssh.Exec_shell(self.IP)
-        exec_ssh.Cat_conf(self.IP)
-        exec_ssh.Restart(self.IP)
-        # aaa=self.IP+" "+self.TIME()+" "+"执行了脚本"   # 执行的命令写入json
-        # self.js.append(aaa)  # 执行的命令写入json
-        # with open("a.js", 'w') as f:  # 每次更新保存js变量的json
-        #    json.dump(self.js, f)       # 执行的命令写入json
-        exec_mysql.insert(self.IP,self.TIME(),"执行了脚本")
+        MYSQL.Scp(self.IP)
+        MYSQL.Exec_shell(self.IP)
+        MYSQL.Cat_conf(self.IP)
+        MYSQL.Restart(self.IP)
+        aaa=self.IP+" "+self.TIME()+" "+"执行了脚本"   # 执行的命令写入json
+        self.js.append(aaa)  # 执行的命令写入json
+        with open("a.js", 'w') as f:  # 每次更新保存js变量的json
+            json.dump(self.js, f)       # 执行的命令写入json
+        EXE_SSH.insert(self.IP,self.TIME(),"执行了脚本")        #执行的命令添加在数据库
 #BTN6
-    def BTN6(self):
-        zd=self.entry1.get()
+    def BTN6(self):         #sed替换按钮
+        ml=self.entry1.get()
         ym=self.entry2.get()
-        a=exec_ssh.Exec_sed(zd.strip(),ym.strip(),self.IP)
-        print(exec_mysql.insert(self.IP, self.TIME(), a))
-        #aaa=self.IP+" "+self.TIME()+" "+a   # 执行的命令写入json
-        #self.js.append(aaa)  # 执行的命令写入json
-        #with open("a.js", 'w') as f:  # 每次更新保存js变量的json
-        #    json.dump(self.js, f)       # 执行的命令写入json
+        ym=ym.strip()
+        if easygui.ccbox("确定域名是以下格式，中间用#号分割，开头结尾不添加。\n\n确定域名个数，单个域名不用写 # \n\n例如:\nhttp://jd.com#http://taobao.com","提示"):
+            pass
+        else:
+            cccccc
+        ymm=ym.split("#")
+        ymm= [ i for i in ymm if i != '' ]
+        aa = MYSQL.XG_sed(ml.strip(), ymm, self.IP)
+        print(aa)
+        for a in aa:
+            print(a)
+            EXE_SSH.insert(self.IP, self.TIME(), a)           # 执行的命令添加在数据库
+            aaa = self.IP + " " + self.TIME() + " " + a     # 执行的命令写入json
+            self.js.append(aaa)                             # 执行的命令写入json
+            with open("a.js", 'w') as f:                    # 每次更新保存js变量的json
+                json.dump(self.js, f)                       # 执行的命令写入json
 
 #BTN7
     def SHELL(self):
         sh=self.entry3.get()
         sh=sh.strip()
-        b=exec_ssh.shell(sh,self.IP)                #执行shell
+        b=MYSQL.shell(sh,self.IP)                #执行shell
         self.text1.insert(1.0, b)  # 输出到 listbox
         self.text1.insert(1.0, "------------------\n{}\n------------------\n".format(self.TIME()))
-        #if len(self.text1.get(1.0, END)) == 5:          #保持输出在屏幕永远只有五行
-        #    self.text1.delete(1.0)
-        #d = len(self.text1.get(1.0, END)) - 5
-        #dd=str(d)+".0"
-        #if len(self.text1.get(1.0, END)) > 5:
-        #    self.text1.delete(1.0, float(dd))
-        #####################################################
-        #history = "{} {} {} ".format(self.IP,self.TIME(),sh)    # 执行的命令写入json
-        #self.js.append(history)                                 # 执行的命令写入json
-        #with open("a.js", 'w') as f:                            # 每次更新保存js变量的json
-        #    json.dump(self.js, f)                                # 执行的命令写入json
-        exec_mysql.insert(self.IP,self.TIME(),sh)        #保存在数据库
+        history = "{} {} {} ".format(self.IP,self.TIME(),sh)    # 执行的命令写入json
+        self.js.append(history)                                 # 执行的命令写入json
+        with open("a.js", 'w') as f:                            # 每次更新保存js变量的json
+            json.dump(self.js, f)                                # 执行的命令写入json
+        EXE_SSH.insert(self.IP,self.TIME(),sh)                     #保存在数据库
 # 事件
     def BTN3(self, event):  # 事件触发删除历史命令
-        #self.js = []
-        #with open("a.js", 'w') as f:  # 每次更新保存js变量的json
-        #        json.dump(self.js, f)
-        exec_mysql.delete()
+        if easygui.ccbox("你确定要删除本地和数据库的历史记录吗?"):
+            pass
+        else:
+            cccccccc
+        self.js = []
+        with open("a.js", 'w') as f:  # 每次更新保存js变量的json
+                json.dump(self.js, f)
+        EXE_SSH.delete()
 # 事件
-    def ACM(self, event):  # 事件触发删除历史命令
-        #self.js = []
-        #with open("a.js", 'w') as f:  # 每次更新保存js变量的json
-        #        json.dump(self.js, f)
-        if exec_mysql.active() == "ok":
+    def ACM(self, event):
+        if EXE_SSH.active() == "ok":
             easygui.msgbox("数据库连接成功，操作历史可以保存到数据库！！","提示")
         else:
             easygui.msgbox("数据库连接失败！！","提示")
@@ -190,7 +178,7 @@ class MY_GUI():
 
 if __name__=="__main__":
     IP = easygui.choicebox(
-        '本地虚拟服务器    192.168.116.200 ','选择你需要管理的服务器', ["192.168.116.200"])
+        '本地虚拟服务器    192.168.116.200\n,'选择你需要管理的服务器', ["192.168.116.200"])
     if IP == None:
         sys.exit(1)
     Start=Tk()
