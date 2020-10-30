@@ -1,7 +1,7 @@
 # -*- mode=python ending:utf-8 -*-
 #pack：按添加顺序排列组件 bao
 #grid：按行列形式排列组件 wangge          ,
-#           row=0,column=0 行，列      rowspan占几行，columnspan占几列
+#          row=0,column=0 行，列      rowspan占几行，columnspan占几列
 #           sticky='w'   w左，e右
 #           width=20 宽      height=2 高
 #place：允许程序员指定组件的大小和位置 difang
