@@ -25,6 +25,7 @@ class MY_GUI():
         self.xiaoxue.attributes("-alpha", 0.99)       #虚化
         self.xiaoxue.bind("<Control-Key-d>", self.BTN3)         #快捷键事件
         self.xiaoxue.bind("<Control-Key-m>", self.ACM)
+        self.xiaoxue.bind("<Control-Key-l>", self.EXIT)
         # self.xiaoxue.attributes("-topmost", -1)        #置顶窗口
         #self.xiaoxue.resizable(0, 0)        #固定宽高
         #self.xiaoxue.overrideredirect(True)    #取消边框，慎用
@@ -51,13 +52,13 @@ class MY_GUI():
         self.button1.grid(row=0, column=2,sticky='w')   #调度EXIT函数
         self.button2=Button(self.xiaoxue,bg="pink",text="执行替换", activebackground='lime',command=self.BTN6, width=10)
         self.button2.grid(row=1, column=2,sticky='w')   #调度TISHI函数
-        self.button3=Button(self.xiaoxue, bg="pink",text="清理页面",activebackground='lime',command=self.EXIT,width=10)  # activebackground按下去颜色
+        self.button3=Button(self.xiaoxue, bg="pink",text="备份同步",activebackground='lime',command=self.BF,width=10)  # activebackground按下去颜色
         self.button3.grid(row=0, column=3,sticky='w')   #调度BTN3函数
         self.button4=Button(self.xiaoxue, bg="pink",text="历史操作",activebackground='lime', command=self.BTN4,width=10)
         self.button4.grid(row=1, column=3,sticky='w')   #调度BTN4函数
         self.button5=Button(self.xiaoxue, bg="pink",text="连接状态", activebackground='lime', command=self.BIND,width=10)  # activebackground按下去颜色
         self.button5.grid(row=0, column=4,columnspan=2)   #调度BTN5函数
-        self.button6=Button(self.xiaoxue, bg="pink",text="退出  ",activebackground='lime', command=self.TISHI,width=10)
+        self.button6=Button(self.xiaoxue, bg="pink",text="所有站点  ",activebackground='lime', command=self.TISHIs,width=10)
         self.button6.grid(row=1, column=4,columnspan=2)   #调度BTN6函数
         self.button7 = Button(self.xiaoxue, bg="pink", text="shell", activebackground='lime', command=self.SHELL,width=10)
         self.button7.grid(row=2, column=4, columnspan=2)  # 调度BTN6函数
@@ -81,12 +82,23 @@ class MY_GUI():
 
 
 #BTN1
-    def EXIT(self):
+    def EXIT(self,event):
         self.XIAOXUE()
-#BTN2
-    def TISHI(self):
-        easygui.msgbox("再见",'提示')
-        sys.exit(0)
+    def TISHIs(self):
+        shh = "ls /usr/share/nginx/html/"
+        b = EXE_SSH.shell(shh, self.IP)  # 执行shell
+        self.text1.insert(1.0, b)  # 输出到 listbox
+        self.text1.insert(1.0, "-------------\n{}\n---------------   所有站点  ----------------\n".format(self.TIME()))
+
+    #BTN2
+    def BF(self):
+        tongbu = "sh  /xue/rsync.sh"
+        b = EXE_SSH.shell(tongbu, self.IP)  # 执行shell
+        self.text1.insert(1.0, b)  # 输出到 listbox
+        bf = "sh  /xue/back_nginx1.sh"
+        b = EXE_SSH.shell(bf, self.IP)  # 执行shell
+        self.text1.insert(1.0, b)  # 输出到 listbox
+        self.text1.insert(1.0, "-------------\n{}\n------------   备份 同步到另一台  ----------------\n".format(self.TIME()))
 
 #BTN3
     def BIND(self):
@@ -121,7 +133,7 @@ class MY_GUI():
         if easygui.ccbox("确定域名是以下格式，中间用#号分割，开头结尾不添加。\n\n确定域名个数，单个域名不用写 # \n\n例如:\nhttp://365vip1.com#http://365vip2.com","提示"):
             pass
         else:
-            cccccc
+            return 0
         ymm=ym.split("#")
         ymm= [ i for i in ymm if i != '' ]
         aa = EXE_SSH.XG_sed(ml.strip(), ymm, self.IP)
@@ -145,7 +157,7 @@ class MY_GUI():
         if easygui.ccbox("你确定要删除本地和数据库的历史记录吗?"):
             pass
         else:
-            cccccccc
+            return
         MYSQL.delete()
 # 事件
     def ACM(self, event):
@@ -159,7 +171,7 @@ class MY_GUI():
 
 if __name__=="__main__":
     IP = easygui.choicebox(
-        '选择要修改的服务器\n','选择你需要管理的服务器', ['192.168.116.200'])
+        '选择要修改的服务器\n','选择你需要管理的服务器', ["1",'2'])
     if IP == None:
         sys.exit(1)
     Start=Tk()
