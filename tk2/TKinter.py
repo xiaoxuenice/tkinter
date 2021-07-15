@@ -220,7 +220,7 @@ class MY_GUI():
         return(time.strftime("%m-%d %H:%M:%S", time.localtime(time.time())))
 
 if __name__=="__main__":
-    IP = "47.243.85.19"
+    IP = "192.168.1.2"
     if IP == None:
         sys.exit(1)
     Start=Tk()

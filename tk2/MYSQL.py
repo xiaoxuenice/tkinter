@@ -1,6 +1,6 @@
 import pymysql
 def insert(ip,timee,argg):
-  mydb = pymysql.connect(host="112.175.69.101",user="root",passwd="Pwd@123456",database="python",ssl={"ssl":""})
+  mydb = pymysql.connect(host="192.168.1.2",user="root",passwd="Pwd@123456",database="python",ssl={"ssl":""})
   a = mydb.cursor()
   try:
     argg=argg.replace('"','\\"')
@@ -11,7 +11,7 @@ def insert(ip,timee,argg):
   except Exception as f:
     return f
 def select():
-  mydb = pymysql.connect(host="112.175.69.101",user="root",passwd="Pwd@123456",database="python",ssl={"ssl":""})
+  mydb = pymysql.connect(host="192.168.1.2",user="root",passwd="Pwd@123456",database="python",ssl={"ssl":""})
   a = mydb.cursor()
   a.execute('select concat(ip,"  ",time," ",message)  from shell;')
   b=a.fetchall()
@@ -20,7 +20,7 @@ def select():
     c.append(b[i][0])
   return c
 def delete():
-  mydb = pymysql.connect(host="112.175.69.101",user="root",passwd="Pwd@123456",database="python",ssl={"ssl":""})
+  mydb = pymysql.connect(host="192.168.1.2",user="root",passwd="Pwd@123456",database="python",ssl={"ssl":""})
   a = mydb.cursor()
   try:
     a.execute("delete from shell")
@@ -30,7 +30,7 @@ def delete():
     return f
 def active():
   try:
-      pymysql.connect(host="112.175.69.101",user="root",passwd="Pwd@123456",database="python",ssl={"ssl":""})
+      pymysql.connect(host="192.168.1.2",user="root",passwd="Pwd@123456",database="python",ssl={"ssl":""})
       return "ok"
   except Exception as f:
       return "error"
